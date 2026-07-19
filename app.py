@@ -1,6 +1,7 @@
 import streamlit as st
 from config import GROQ_API_KEY
 from modules.pdf_parser import extract_text_from_pdf, extract_tables_from_pdf
+from modules.rag_engine import build_vector_store, search_vector_store
 
 st.set_page_config(
     page_title="StatIQ",
@@ -30,5 +31,19 @@ if uploaded_file:
             for i, table in enumerate(tables):
                 st.write(f"Table {i+1}")
                 st.dataframe(table)
+    # RAG — build vector store from extracted text
+    with st.spinner("Building vector store..."):
+        vector_store = build_vector_store(text)
+    st.success("Vector store built successfully")
+
+    query = st.text_input("Ask a question about this bank statement:")
+    if query:
+        results = search_vector_store(query, vector_store)
+        st.subheader("Relevant chunks found:")
+        for i, result in enumerate(results):
+            st.write(f"Chunk {i+1}:")
+            st.info(result.page_content)
+
 else:
     st.info("Upload a bank statement PDF to begin analysis")
+
