@@ -4,6 +4,7 @@ from modules.pdf_parser import extract_text_from_pdf
 from modules.rag_engine import build_vector_store, search_vector_store
 from modules.db import insert_statement, insert_transactions
 from modules.analytics import compute_analytics
+from modules.anomaly import detect_anomalies
 from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
@@ -88,6 +89,15 @@ if uploaded_file:
             st.plotly_chart(plot_transaction_types(df), use_container_width=True)
 
         st.plotly_chart(plot_debit_credit_comparison(analytics), use_container_width=True)
+                # Step 8 — Anomaly Detection
+        st.divider()
+        st.subheader("🚨 Anomaly & Risk Flags")
+        anomaly_df = detect_anomalies(df)
+        if anomaly_df.empty:
+            st.success("No anomalies detected")
+        else:
+            st.warning(f"{len(anomaly_df)} flag(s) detected")
+            st.dataframe(anomaly_df, use_container_width=True)
 
     st.divider()
     query = st.text_input("Ask a question about this bank statement:")
