@@ -5,6 +5,7 @@ from modules.rag_engine import build_vector_store, search_vector_store
 from modules.db import insert_statement, insert_transactions
 from modules.analytics import compute_analytics
 from modules.anomaly import detect_anomalies
+from modules.report_gen import generate_risk_report
 from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
@@ -98,6 +99,13 @@ if uploaded_file:
         else:
             st.warning(f"{len(anomaly_df)} flag(s) detected")
             st.dataframe(anomaly_df, use_container_width=True)
+                # Step 9 — AI Risk Report
+        st.divider()
+        st.subheader("🤖 AI Risk Report")
+        if st.button("Generate Risk Report"):
+            with st.spinner("Generating report with LLaMA 3.3 70B..."):
+                report = generate_risk_report(analytics, anomaly_df)
+            st.markdown(report)
 
     st.divider()
     query = st.text_input("Ask a question about this bank statement:")
