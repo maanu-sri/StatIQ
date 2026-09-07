@@ -7,6 +7,7 @@ from modules.analytics import compute_analytics
 from modules.anomaly import detect_anomalies
 from modules.report_gen import generate_risk_report
 from modules.pdf_export import generate_pdf_report
+from modules.nl_query import text_to_sql, run_nl_query
 from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
@@ -124,6 +125,18 @@ if uploaded_file:
                     file_name="StatIQ_Risk_Report.pdf",
                     mime="application/pdf"
                 )
+                # Step 10 — Text to SQL
+        st.divider()
+        st.subheader("🔍 Ask Questions About the Data")
+        nl_question = st.text_input("Ask a data question (e.g. 'How many UPI transactions?')")
+        if nl_question:
+            sql, results = run_nl_query(nl_question, statement_id)
+            st.code(sql, language="sql")
+            if results:
+                import pandas as pd
+                st.dataframe(pd.DataFrame(results))
+            else:
+                st.info("No results found")
     st.divider()
     query = st.text_input("Ask a question about this bank statement:")
     if query:
