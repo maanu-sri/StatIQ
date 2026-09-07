@@ -4,6 +4,7 @@ from modules.pdf_parser import extract_text_from_pdf
 from modules.rag_engine import build_vector_store, search_vector_store
 from modules.db import insert_statement, insert_transactions
 from modules.analytics import compute_analytics
+from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
 st.set_page_config(page_title="StatIQ", page_icon="🏦", layout="wide")
@@ -76,6 +77,17 @@ if uploaded_file:
         col7, col8 = st.columns(2)
         col7.metric("Bounce Count", analytics['bounce_count'])
         col8.metric("Balance Std Dev", f"₹{analytics['balance_std']:,.2f}")
+                # Step 7 — Charts
+        st.divider()
+        st.subheader("📊 Visual Dashboard")
+
+        col_left, col_right = st.columns(2)
+        with col_left:
+            st.plotly_chart(plot_balance_trend(df), use_container_width=True)
+        with col_right:
+            st.plotly_chart(plot_transaction_types(df), use_container_width=True)
+
+        st.plotly_chart(plot_debit_credit_comparison(analytics), use_container_width=True)
 
     st.divider()
     query = st.text_input("Ask a question about this bank statement:")
