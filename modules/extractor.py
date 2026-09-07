@@ -75,15 +75,16 @@ def extract_transactions(uploaded_file):
 def classify_transactions(df):
     if df.empty or "Narration" not in df.columns:
         return df
-
     df = df.copy()
     df["Type"] = "Other"
+    # Salary must come first — before NEFT catch-all
     df.loc[df["Narration"].str.contains("SALARY|PAYROLL|SAL CR", case=False, na=False), "Type"] = "Salary"
     df.loc[df["Narration"].str.contains("ACHD|EMI|LOAN", case=False, na=False), "Type"] = "EMI"
     df.loc[df["Narration"].str.contains("BOUNCE|RETURN|DISHONOUR", case=False, na=False), "Type"] = "Bounce"
     df.loc[df["Narration"].str.contains("ATM|WDL", case=False, na=False), "Type"] = "ATM"
     df.loc[df["Narration"].str.contains("UPI", case=False, na=False), "Type"] = "UPI"
-    df.loc[df["Narration"].str.contains("NEFT|IMPS|RTGS", case=False, na=False), "Type"] = "NEFT/IMPS"
+    # NEFT/IMPS only if not already classified as Salary
+    df.loc[(df["Narration"].str.contains("NEFT|IMPS|RTGS", case=False, na=False)) & (df["Type"] == "Other"), "Type"] = "NEFT/IMPS"
     return df
 
 
