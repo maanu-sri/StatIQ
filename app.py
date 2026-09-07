@@ -6,6 +6,7 @@ from modules.db import insert_statement, insert_transactions
 from modules.analytics import compute_analytics
 from modules.anomaly import detect_anomalies
 from modules.report_gen import generate_risk_report
+from modules.pdf_export import generate_pdf_report
 from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
@@ -103,10 +104,26 @@ if uploaded_file:
         st.divider()
         st.subheader("🤖 AI Risk Report")
         if st.button("Generate Risk Report"):
-            with st.spinner("Generating report with LLaMA 3.3 70B..."):
+            with st.spinner("Generating report with LLM..."):
                 report = generate_risk_report(analytics, anomaly_df)
             st.markdown(report)
 
+            # PDF Export
+            st.divider()
+            with st.spinner("Creating PDF..."):
+                pdf_path = generate_pdf_report(
+                    account_holder="Rahul Sharma",
+                    analytics=analytics,
+                    anomaly_df=anomaly_df,
+                    ai_report=report
+                )
+            with open(pdf_path, "rb") as f:
+                st.download_button(
+                    label="📥 Download Risk Report PDF",
+                    data=f,
+                    file_name="StatIQ_Risk_Report.pdf",
+                    mime="application/pdf"
+                )
     st.divider()
     query = st.text_input("Ask a question about this bank statement:")
     if query:
