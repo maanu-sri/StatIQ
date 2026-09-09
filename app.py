@@ -8,6 +8,7 @@ from modules.anomaly import detect_anomalies
 from modules.report_gen import generate_risk_report
 from modules.pdf_export import generate_pdf_report
 from modules.nl_query import text_to_sql, run_nl_query
+from modules.db import log_event
 from modules.dashboard import plot_balance_trend, plot_transaction_types, plot_debit_credit_comparison
 from modules.extractor import extract_transactions, classify_transactions, clean_amounts
 
@@ -18,6 +19,7 @@ st.markdown("*Automated credit analysis for NBFCs, CA firms & DSAs*")
 st.divider()
 
 uploaded_file = st.file_uploader("Upload bank statement (PDF)", type="pdf")
+log_event("pdf_uploaded", statement_id, f"{len(df)} transactions extracted")
 
 if uploaded_file:
     with st.spinner("Extracting text from PDF..."):
@@ -108,6 +110,7 @@ if uploaded_file:
             with st.spinner("Generating report with LLM..."):
                 report = generate_risk_report(analytics, anomaly_df)
             st.markdown(report)
+            log_event("report_generated", statement_id, "AI risk report created")
 
             # PDF Export
             st.divider()

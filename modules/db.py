@@ -23,3 +23,9 @@ def fetch_transactions(statement_id):
 def fetch_all_statements():
     result = supabase.table("statements").select("*").execute()
     return pd.DataFrame(result.data)
+def log_event(event, statement_id=None, details=None):
+    supabase.table("app_logs").insert({
+        "event": event,
+        "statement_id": statement_id,
+        "details": details
+    }).execute()
