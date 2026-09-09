@@ -147,4 +147,4 @@ if uploaded_file:
             st.info(result.page_content)
 
 else:
-    st.info("Upload a bank statement PDF to begin analysis")
+    st.info("Upload a bank statement PDF")
